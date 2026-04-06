@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- SEO Best Practices -->
+    <meta name="description" content="Predict accident severity accurately using machine learning based on real-time weather and environmental factors.">
+    <title>Accident Severity Predictor</title>
+    <!-- Use Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Link to external CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>Accident Severity Predictor</h1>
+            <p>Predict accident severity using our advanced Machine Learning model based on real-time weather and environmental factors.</p>
+        </header>
+
+        <main class="main-content">
+            <div class="card">
+                <form id="prediction-form">
+                    <div class="form-group">
+                        <label for="temperature">Temperature (°F/°C)</label>
+                        <input type="number" step="any" id="temperature" name="temperature" placeholder="e.g. 70.5" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="visibility">Visibility (miles/km)</label>
+                        <input type="number" step="any" id="visibility" name="visibility" placeholder="e.g. 10" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="wind_speed">Wind Speed (mph/kmh)</label>
+                        <input type="number" step="any" id="wind_speed" name="wind_speed" placeholder="e.g. 5.5" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="weather_condition">Weather Condition</label>
+                        <select id="weather_condition" name="weather_condition" required>
+                            <option value="" disabled selected>Select weather...</option>
+                            <option value="Clear">Clear</option>
+                            <option value="Cloudy">Cloudy</option>
+                            <option value="Rain">Rain / Drizzle</option>
+                            <option value="Snow">Snow / Ice</option>
+                            <option value="Storm">Storm / Thunderstorm</option>
+                            <option value="Fog">Fog / Haze</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="predict-btn" id="predict-btn">Predict Severity</button>
+                </form>
+
+                <div id="result-container" class="result-container hidden">
+                    <h3>Prediction Result:</h3>
+                    <div id="prediction-text" class="prediction-text"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('prediction-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Show loading state
+            const btn = document.getElementById('predict-btn');
+            const originalBtnText = btn.innerText;
+            btn.innerText = 'Predicting...';
+            btn.disabled = true;
+
+            const resultContainer = document.getElementById('result-container');
+            const predictionText = document.getElementById('prediction-text');
+            resultContainer.classList.add('hidden');
+            predictionText.classList.remove('error');
+
+            const payload = {
+                temperature: document.getElementById('temperature').value,
+                visibility: document.getElementById('visibility').value,
+                wind_speed: document.getElementById('wind_speed').value,
+                weather_condition: document.getElementById('weather_condition').value
+            };
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                resultContainer.classList.remove('hidden');
+
+                if (response.ok) {
+                    predictionText.innerText = data.severity_prediction;
+                    
+                    // Add dynamic color mapping based on severity
+                    const severity = data.severity_prediction.toLowerCase();
+                    if (severity.includes('low')) predictionText.style.color = '#10b981';
+                    else if (severity.includes('moderate')) predictionText.style.color = '#f59e0b';
+                    else if (severity.includes('high')) predictionText.style.color = '#ef4444';
+                    else if (severity.includes('severe')) predictionText.style.color = '#991b1b';
+                    else predictionText.style.color = 'var(--text-main)';
+                } else {
+                    predictionText.innerText = `Error: ${data.error}`;
+                    predictionText.classList.add('error');
+                    predictionText.style.color = '#ef4444';
+                }
+
+            } catch (err) {
+                resultContainer.classList.remove('hidden');
+                predictionText.innerText = `Network or server error occurred.`;
+                predictionText.classList.add('error');
+                predictionText.style.color = '#ef4444';
+            } finally {
+                // Restore button
+                btn.innerText = originalBtnText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
