@@ -35,8 +35,13 @@ def index():
 
 @app.route('/predict', methods=['POST'])
 def predict():
+    global model
     if not model:
-        return jsonify({'error': 'Model not loaded. Ensure accident_severity_model.pkl is present.'}), 500
+        try:
+            model_path = os.path.join(os.path.dirname(__file__), 'accident_severity_model.pkl')
+            model = joblib.load(model_path)
+        except Exception as e:
+            return jsonify({'error': 'Model not loaded. Ensure accident_severity_model.pkl is present.'}), 500
 
     try:
         data = request.json
