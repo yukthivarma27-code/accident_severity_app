@@ -1,6 +1,6 @@
-Here's a cleaner, more professional, GitHub-ready README that looks like a polished industry project.
 
-# 🚦 Accident Severity Prediction System
+
+##🚦 Accident Severity Prediction System
 
 <div align="center">
 
