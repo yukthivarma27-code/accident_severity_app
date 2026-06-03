@@ -1,6 +1,6 @@
 
 
-##🚦 Accident Severity Prediction System
+#🚦 Accident Severity Prediction System
 
 <div align="center">
 
