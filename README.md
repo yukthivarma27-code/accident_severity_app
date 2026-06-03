@@ -200,6 +200,4 @@ If you find this project useful, consider giving it a **star ⭐** on GitHub. It
 
 ---
 
-### "Transforming accident data into actionable safety insights through Machine Learning." 🚦🤖
 
-This style is commonly seen in high-quality GitHub portfolios, final-year projects, and professional ML repositories.
